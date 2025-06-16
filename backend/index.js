@@ -7,7 +7,7 @@ const PORT = 8001;
 
 // ✅ CORS setup
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://apilogintask.vercel.app'],
+  origin: ['http://localhost:5173', 'https://frontendapitask.vercel.app'],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
   credentials: true,
