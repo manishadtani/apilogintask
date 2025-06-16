@@ -13,54 +13,36 @@ const Login = () => {
     console.log('Trying to log in with:', { email, password });
 
     try {
-     
-const apiUrl = `${import.meta.env.VITE_API_URL}/auth/login`;
-console.log(apiUrl)
+      const apiUrl = `http://localhost:8001/api/auth/login`;
+      console.log(apiUrl);
+
       const resp = await axios.post(apiUrl, {
         email,
         password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
-      if (!resp.ok) {
-        const text = await resp.text();
-        console.warn('Error response:', text);
-
-        let errorMessage = 'Login failed';
-        try {
-          const data = JSON.parse(text);
-          errorMessage = data.message || Error `${resp.status}: Invalid credentials`;
-        } catch {
-          if (resp.status === 404) {
-            errorMessage = 'API endpoint not found. Is the backend running?';
-          } else {
-            errorMessage = `Server error: ${resp.status} ${resp.statusText}`;
-          }
-        }
-        setMessage(errorMessage);
-        return;
-      }
-
-      const contentType = resp.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        setMessage('Server returned unexpected format');
-        return;
-      }
-
-      const data = await resp.json();
+      // Axios doesn't have `.ok`, it throws error automatically on bad response (like 400/401)
+      const data = resp.data;
       console.log('Login successful:', data);
 
       setMessage('Login successful!');
       setToken(data.token);
-      localStorage.setItem('token', data.refresh);
+      localStorage.setItem('token', data.refresh); // assuming 'refresh' is your refresh token
     } catch (error) {
-      console.error('Network or unknown error:', error);
-      if (error.message.includes('Failed to fetch')) {
-        setMessage('Can’t connect, error in handleSubmit.');
+      console.error('Login error:', error);
+
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        if (error.response.status === 404) {
+          setMessage('API endpoint not found. Is the backend running?');
+        } else {
+          setMessage(error.response.data.message || 'Login failed');
+        }
+      } else if (error.request) {
+        // Request made but no response
+        setMessage('No response from server. Please check connection.');
       } else {
+        // Other errors
         setMessage('Something went wrong. Please try again.');
       }
     }
@@ -111,7 +93,6 @@ console.log(apiUrl)
           {message}
         </p>
       )}
-
     </div>
   );
 };
