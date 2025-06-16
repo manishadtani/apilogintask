@@ -12,13 +12,8 @@ const Login = () => {
     console.log('Trying to log in with:', { email, password });
 
     try {
-      const isProduction = import.meta.env.PROD;
-      const apiUrl = isProduction
-        ? 'http://82.112.234.104:8001/api/auth/login/'
-        : '/api/auth/login/';
-
-      console.log('Sending request to:', apiUrl);
-
+     
+   const apiUrl = `${import.meta.env.VITE_API_URL}/auth/login`;
       const resp = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
