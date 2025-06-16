@@ -12,7 +12,7 @@ const Login = () => {
     console.log('Trying to log in with:', { email, password });
 
     try {
-      const isProduction = import.meta.env.PRO;
+      const isProduction = import.meta.env.PROD;
       const apiUrl = isProduction
         ? 'http://82.112.234.104:8001/api/auth/login/'
         : '/api/auth/login/';
