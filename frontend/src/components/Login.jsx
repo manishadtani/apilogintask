@@ -14,7 +14,7 @@ const Login = () => {
       const API_URL =
         import.meta.env.MODE === "development"
           ? "/api/auth/login/"
-          : "https://frotloginapi.onrender.com/api/auth/login";
+          : "https://apilogintask.onrender.com/api/auth/login";
 
       const res = await axios.post(API_URL, {
         email,
