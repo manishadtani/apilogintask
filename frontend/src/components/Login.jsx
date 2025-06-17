@@ -1,98 +1,72 @@
-import axios from 'axios';
-import React, { useState } from 'react';
+import { useState } from "react";
+import axios from "axios";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [token, setToken] = useState('');
+  const [email, setEmail] = useState("pthgtm611919@gmail.com");
+  const [password, setPassword] = useState("1234@Abcd");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setMessage('Logging in...');
-    console.log('Trying to log in with:', { email, password });
+    setMessage("Logging in...");
 
     try {
-      const apiUrl = `http://localhost:8001/api/auth/login`;
-      console.log(apiUrl);
+      const API_URL =
+        import.meta.env.MODE === "development"
+          ? "/api/auth/login/"
+          : "https://frotloginapi.onrender.com/api/auth/login";
 
-      const resp = await axios.post(apiUrl, {
+      const res = await axios.post(API_URL, {
         email,
         password,
       });
 
-      // Axios doesn't have `.ok`, it throws error automatically on bad response (like 400/401)
-      const data = resp.data;
-      console.log('Login successful:', data);
-
-      setMessage('Login successful!');
-      setToken(data.token);
-      localStorage.setItem('token', data.refresh); // assuming 'refresh' is your refresh token
+      console.log("Token:", res.data.refresh);
+      localStorage.setItem("token", res.data.refresh);
+      setMessage("Login successful!");
     } catch (error) {
-      console.error('Login error:', error);
-
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        if (error.response.status === 404) {
-          setMessage('API endpoint not found. Is the backend running?');
-        } else {
-          setMessage(error.response.data.message || 'Login failed');
-        }
-      } else if (error.request) {
-        // Request made but no response
-        setMessage('No response from server. Please check connection.');
+      if (error.response?.status === 401) {
+        setMessage("Invalid email or password");
       } else {
-        // Other errors
-        setMessage('Something went wrong. Please try again.');
+        setMessage("Something went wrong. Try again.");
       }
+      console.error("Login error:", error);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px' }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white shadow-md rounded-lg px-8 py-6 w-full max-w-sm space-y-4"
+      >
+        <h2 className="text-2xl font-semibold text-center text-gray-800">Login</h2>
         <input
           type="email"
-          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+          placeholder="Email"
+          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <input
           type="password"
-          placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+          placeholder="Password"
+          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           type="submit"
-          style={{
-            width: '100%',
-            padding: '10px',
-            background: '#0070f3',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-          }}
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
         >
           Login
         </button>
+        {message && (
+          <p className="text-center text-sm text-gray-700">{message}</p>
+        )}
       </form>
-
-      {message && (
-        <p
-          style={{
-            color: message.includes('successful') ? 'green' : 'red',
-            marginTop: '10px',
-          }}
-        >
-          {message}
-        </p>
-      )}
     </div>
   );
 };

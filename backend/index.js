@@ -1,34 +1,26 @@
-import express from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
+import express from "express";
+import cors from "cors";
+import axios from "axios";
 
 const app = express();
-const PORT = 8001;
-
-// ✅ CORS setup
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://frontendapitask-yplo.vercel.app'],
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
-
-// ✅ These are enough
-app.use(morgan('dev'));
+app.use(cors());
 app.use(express.json());
 
-// ✅ Sample login route
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
+const PORT = process.env.PORT || 3000;
 
-  if (email === 'pthgtm611919@gmail.com' && password === '1234@Abcd') {
-    return res.json({message: 'Login successful', token: 'abc123', refresh: 'xyz789'});
+// Proxy login route
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const response = await axios.post("http://82.112.234.104:8001/api/auth/login/", req.body);
+    console.log(response.data);
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: error.response?.data || "Something went wrong",
+    });
   }
-
-  res.status(401).json({ message: 'Invalid credentials' });
 });
 
 app.listen(PORT, () => {
-  console.log('Server running on port ', PORT);
+  console.log(`Server running on port ${PORT}`);
 });
